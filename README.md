@@ -23,7 +23,7 @@ A robust NestJS backend API providing authentication services with JWT tokens, u
 
 1. Navigate to the backend directory:
 ```bash
-cd backend
+cd easygenerator-auth-backend
 ```
 
 2. Install dependencies:
