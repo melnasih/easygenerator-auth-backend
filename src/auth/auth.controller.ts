@@ -1,29 +1,58 @@
-import { Controller, Post, Body, UseGuards, Get, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Request,
+  HttpCode,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
+import { Request as ExpressRequest } from 'express';
+
+class AuthResponseDto {
+  token: string; 
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
+}
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  private readonly logger = new Logger(AuthController.name);
+
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+  @HttpCode(HttpStatus.CREATED)
+  async signup(@Body() signupDto: SignupDto): Promise<AuthResponseDto> {
+    const result = await this.authService.signup(signupDto);
+    this.logger.log(`signup: user=${signupDto.email}`);
+    return result;
   }
 
   @Post('signin')
-  async signin(@Body() signinDto: SigninDto) {
-    return this.authService.signin(signinDto);
+  @HttpCode(HttpStatus.OK)
+  async signin(@Body() signinDto: SigninDto): Promise<AuthResponseDto> {
+    const result = await this.authService.signin(signinDto);
+    this.logger.log(`signin: user=${signinDto.email}`);
+    return result;
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
-  getProfile(@Request() req) {
+  @HttpCode(HttpStatus.OK)
+  getProfile(@Request() req: ExpressRequest) {
     return {
       message: 'Profile retrieved successfully',
-      user: req.user,
+      user: (req as any).user,
     };
   }
 }
