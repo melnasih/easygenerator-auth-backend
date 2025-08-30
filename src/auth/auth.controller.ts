@@ -17,6 +17,8 @@ import { Request as ExpressRequest } from 'express';
 
 class AuthResponseDto {
   token: string; 
+  expiresIn: number;
+  message: string;
   user: {
     id: string;
     email: string;

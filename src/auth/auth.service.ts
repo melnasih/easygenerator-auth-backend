@@ -28,14 +28,16 @@ export class AuthService {
     // Create new user
     const user = await this.usersService.create(email, name, password);
     this.logger.log(`User created successfully: ${email}`);
-
+    
     // Generate JWT token
+    const expiresIn = 3600;
     const payload = { email: user.email, sub: user._id, name: user.name };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, { expiresIn });
 
     return {
       message: 'User created successfully',
       token,
+      expiresIn,
       user: {
         id: user._id,
         email: user.email,
@@ -66,12 +68,14 @@ export class AuthService {
     this.logger.log(`User signed in successfully: ${email}`);
 
     // Generate JWT token
+    const expiresIn = 3600;
     const payload = { email: user.email, sub: user._id, name: user.name };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, { expiresIn });
 
     return {
       message: 'Signed in successfully',
       token,
+      expiresIn,
       user: {
         id: user._id,
         email: user.email,
